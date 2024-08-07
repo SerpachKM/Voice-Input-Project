@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Голосовой Ввод</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #333;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        @keyframes colorChange {
+            0% {
+                color: #FFF; /* Начальный цвет */
+            }
+            50% {
+                color: #FFA500; /* Промежуточный цвет */
+            }
+            100% {
+                color: #FFF; /* Конечный цвет */
+            }
+        }
+        h1 {
+            position: absolute;
+            top: 20px;
+            text-align: center;
+            width: 100%;
+            color: #FFA500; /* Начальный цвет */
+            font-size: 5em;
+            animation: colorChange 5s infinite; /* Применяем анимацию */
+        }
+        .arrow-container {
+            position: fixed;
+            right: 10px;
+            bottom: 10px;
+            cursor: pointer;
+            background-color: #f1f1f1;
+            padding: 10px;
+            border-radius: 50%;
+        }
+        .arrow {
+            font-size: 24px;
+            color: #333;
+        }
+        .circle-container {
+            position: fixed;
+            right: 10px;
+            bottom: 10px;
+            cursor: pointer;
+            background-color: red;
+            padding: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        .clear-btn {
+            font-size: 20px;
+            padding: 10px;
+            margin-left: 880px;
+            cursor: pointer;
+        }
+
+        .info-panel {
+            position: fixed;
+            right: 100px;
+            top: 1000px;
+            bottom: 80px;
+            width: 400px;
+            background-color: #333;
+            color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        a.red-link {
+            color: red;
+        }
+        .btn {
+            background-color: #FFA500;
+            color: #fff;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            position: relative;
+            z-index: 1;
+        }
+        .btn:hover {
+            background-color: #FF8C00;
+            transform: scale(1.05); /* Легкое увеличение кнопки при наведении */
+        }
+        .letter {
+            position: absolute;
+            top: -50px;
+            color: #FFA500;
+            font-size: 40px;
+            animation: fall linear forwards;
+        }
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+        .fall {
+            animation: fall 3s linear forwards;
+        }
+        #visitorCounter {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            font-size: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+        .input-container {
+            display: none;
+            position: absolute;
+            top: -100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1000px;
+            height: 800px;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: none;
+            background-color: transparent;
+            z-index: 1;
+            transition: top 1s ease;
+        }
+        .input-container.show {
+            display: block;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        textarea {
+            width: 100%;
+            height: 100%;
+            background-color: #000; /* Прозрачный фон для поля ввода */
+            border: none; /* Убираем границу */
+            color: #FFA500; /* Оранжевый цвет текста */
+            font-size: 2em;
+            resize: none; /* Отключаем изменение размера */
+            padding: 10px 20px; /* Добавляем отступ внутри поля */
+            border-radius: 15px; /* Скругляем углы */
+            box-sizing: border-box; /* Включаем отступы и границы в расчет ширины и высоты */
+            overflow: auto;
+            line-height: 1.2; /* Управляем высотой строки для лучшего отображения текста */
+            outline: none; /* Убираем стандартное выделение при нажатии */
+            padding-right: 35px; /* Увеличиваем отступ справа для полосы прокрутки */
+            padding-bottom: 20px; /* Увеличиваем отступ снизу для полосы прокру
+        }
+        textarea::-webkit-scrollbar {
+            width: 12px; /* Ширина полосы прокрутки */
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background: #FFA500; /* Цвет ползунка полосы прокрутки */
+            border-radius: 50px; /* Скругляем углы ползунка */
+        }
+        textarea::-webkit-scrollbar-track {
+            background: #333; /* Цвет трека полосы прокрутки */
+            border-radius: 50px; /* Скругляем углы трека */
+        }
+        textarea {
+            scrollbar-width: thin; /* Тонкая полоса прокрутки */
+            scrollbar-color: #FFA500 #333; /* Цвет ползунка и трека полосы прокрутки */
+        }
+        .mic-icon {
+            position: absolute;
+            top: 70px;
+            right: 25px;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 2;
+            transition: color 0.3s;
+        }
+        .mic-icon.active {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Voice Input</h1>
+    <button class="btn" id="fallingBtn">Начать Голосовой Ввод</button>
+    <div id="inputContainer" class="input-container">
+        <i class="fas fa-microphone mic-icon" id="micIcon" title="Нажмите, чтобы активировать микрофон (V)"></i>
+        <button class="clear-btn" id="clearBtn" title="Очистить текстовое поле (C)">Очистить</button>
+        <textarea id="textInput" placeholder="Активируйте микрофон"></textarea>
+    </div>
+
+    <div class="circle-container" id="circleContainer">
+        <div class="circle-text">Информация</div>
+    </div>
+
+    <div class="info-panel" id="infoPanel">
+        <p>Создатель сайта: SerpachKM</p>
+        <p>Дополнительная информация: <a href="https://github.com/SerpachKM" class="red-link">GitHub</a></p>
+        <p>Исходный код проекта: <a href="https://github.com/SerpachKM/Voice-Input-Project" class="red-link">Voice Input Project</a></p>
+    </div>
+
+    <div id="visitorCounter"></div>
+
+    <script>
+        // Variables for falling letters effect
+        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZЙЦУКЕНГШЩЗХЪЭЖДЛОРПАВЫФЯЧСМИТЬБЮ';
+        const body = document.body;
+        const button = document.getElementById('fallingBtn');
+        const inputContainer = document.getElementById('inputContainer');
+        const micIcon = document.getElementById('micIcon');
+        const textInput = document.getElementById('textInput');
+        const clearBtn = document.getElementById('clearBtn');
+        const visitorCounter = document.getElementById('visitorCounter');
+        let isRecognizing = false;
+        let recognitionTimeout;
+        let finalTranscript = '';
+
+        function createFallingLetter() {
+            const letter = document.createElement('div');
+            letter.textContent = letters[Math.floor(Math.random() * letters.length)];
+            letter.classList.add('letter');
+            letter.style.left = Math.random() * 100 + 'vw';
+            const duration = Math.random() * 10 + 10;
+            letter.style.animationDuration = duration + 's';
+            body.appendChild(letter);
+
+            letter.addEventListener('animationend', () => {
+                body.removeChild(letter);
+            }, { once: true });
+        }
+
+        function updateVisitorCounter() {
+            let visits = localStorage.getItem('visits');
+            visits = visits ? parseInt(visits) : 0;
+            visits += 1;
+            localStorage.setItem('visits', visits);
+            visitorCounter.textContent = `Количество посещений 👤: ${visits}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Info panel toggle
+            const circleContainer = document.getElementById('circleContainer');
+            const infoPanel = document.getElementById('infoPanel');
+
+            circleContainer.addEventListener('click', () => {
+                if (infoPanel.style.display === 'none' || infoPanel.style.display === '') {
+                    infoPanel.style.display = 'block';
+                } else {
+                    infoPanel.style.display = 'none';
+                }
+            });
+
+            // Check if the browser supports Web Speech API
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert('Ваш браузер не поддерживает распознавание речи.');
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+
+            recognition.continuous = true;  // Распознавание продолжается до тех пор, пока не остановится вручную
+            recognition.interimResults = true;  // Получать промежуточные результаты
+            recognition.lang = 'ru-RU'; // Настроить язык на русский
+
+            recognition.onstart = () => {
+                micIcon.classList.add('active');
+                textInput.placeholder = "Говорите...";
+                isRecognizing = true;
+                recognitionTimeout = setTimeout(() => {
+                    recognition.stop();
+                }, 30 * 60 * 1000); // Остановить через 30 минут
+            };
+
+            recognition.onend = () => {
+                micIcon.classList.remove('active');
+                textInput.placeholder = "Активируйте микрофон";
+                if (isRecognizing) {
+                    recognition.start();
+                }
+            };
+
+            recognition.onresult = (event) => {
+                let interimTranscript = '';
+
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const result = event.results[i];
+                    if (result.isFinal) {
+                        finalTranscript += result[0].transcript;
+                    } else {
+                        interimTranscript += result[0].transcript;
+                    }
+                }
+
+                textInput.value = finalTranscript + interimTranscript;
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Ошибка распознавания речи: ' + event.error);
+                if (event.error !== 'not-allowed' && event.error !== 'service-not-allowed') {
+                    recognition.start();
+                }
+            };
+
+            micIcon.addEventListener('click', () => {
+                if (isRecognizing) {
+                    isRecognizing = false;
+                    recognition.stop();
+                    clearTimeout(recognitionTimeout);
+                } else {
+                    isRecognizing = true;
+                    recognition.start();
+                }
+            });
+
+            clearBtn.addEventListener('click', () => {
+                textInput.value = '';
+                finalTranscript = '';
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'v' || event.key === 'V') {
+                    if (isRecognizing) {
+                        isRecognizing = false;
+                        recognition.stop();
+                        clearTimeout(recognitionTimeout);
+                    } else {
+                        isRecognizing = true;
+                        recognition.start();
+                    }
+                } else if (event.key === 'c' || event.key === 'C') {
+                    textInput.value = '';
+                    finalTranscript = '';
+                }
+            });
+
+            updateVisitorCounter(); // Update visitor counter on page load
+        });
+
+        button.addEventListener('click', () => {
+            button.classList.add('fall');
+            button.addEventListener('animationend', () => {
+                inputContainer.classList.add('show');
+                setTimeout(() => {
+                    body.removeChild(button);
+                }, 1000);
+            }, { once: true });
+        });
+
+        setInterval(createFallingLetter, 300);
+    </script>
+</body>
+</html>
